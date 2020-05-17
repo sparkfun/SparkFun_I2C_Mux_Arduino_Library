@@ -5,19 +5,17 @@
   License: This code is public domain but you buy me a beer if you use this
   and we meet someday (Beerware license).
 
-  Some I2C devices respond to only one I2C address. This can be a problem
-  when you want to hook multiple of a device to the I2C bus. An I2C Mux
-  solves this issue by allowing you to change the 'channel' or port that
-  the master is talking to.
+  This library supports different Wire ports and different I2C addresses
+  of the mux itself. By sending the mux address to the library you can
+  ostensibly have up to 8 mux boards with 64 devices behind it!
 
-  This example shows how to connect to different ports.
-  The TCA9548A is a mux. This means when you enableMuxPort(2) then the SDA and SCL lines of the master (Arduino)
-  are connected to port 2. Whatever I2C traffic you do, such as distanceSensor.startRanging() will be communicated to whatever
-  sensor you have on port 2.
+  This example shows how to start the lib with a different Wire port and 
+  a different I2C address on the mux. It will fail on the Uno because the Uno
+  has only one Wire port.
 
   Hardware Connections:
-  Attach the Qwiic Mux Shield to your RedBoard or Uno.
-  Plug a device into port 0 or 1
+  Close the ADR0 jumper on the Mux board to change the address to 0x71.
+  Attach the Qwiic Mux to your RedBoard or Uno.
   Serial.print it out at 115200 baud to serial monitor.
 
   SparkFun labored with love to create this code. Feel like supporting open
@@ -33,12 +31,13 @@ QWIICMUX myMux;
 void setup()
 {
   Serial.begin(115200);
-  Serial.println();
   Serial.println("Qwiic Mux Shield Read Example");
 
-  Wire.begin();
+  Wire1.begin(); //This line will fail to compile on an Uno. Use a dev platform with multiple Wire ports
 
-  if (myMux.begin() == false)
+  //Setup mux to use Wire1. If you have multiple muxes, pass address as first argument
+  //ADR0 must have a the jumper closed with solder to use address 0x71. Use 0x70 for all jumpers open.
+  if (myMux.begin(0x71, Wire1) == false)
   {
     Serial.println("Mux not detected. Freezing...");
     while (1)
@@ -62,8 +61,8 @@ void loop()
   byte nDevices = 0;
   for (byte address = 1; address < 127; address++)
   {
-    Wire.beginTransmission(address);
-    byte error = Wire.endTransmission();
+    Wire1.beginTransmission(address);
+    byte error = Wire1.endTransmission();
 
     if (error == 0)
     {
@@ -74,13 +73,6 @@ void loop()
       Serial.println();
 
       nDevices++;
-    }
-    else if (error == 4)
-    {
-      Serial.print("Unknown error at address 0x");
-      if (address < 0x10)
-        Serial.print("0");
-      Serial.println(address, HEX);
     }
   }
 
