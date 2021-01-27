@@ -73,7 +73,7 @@ bool QWIICMUX::setPort(uint8_t portNumber)
 uint8_t QWIICMUX::getPort()
 {
   //Read the current mux settings
-  _i2cPort->beginTransmission(_deviceAddress);
+  //_i2cPort->beginTransmission(_deviceAddress); <- Don't do this!
   _i2cPort->requestFrom(_deviceAddress, 1);
   if (!_i2cPort->available())
     return (255); //Error
@@ -105,7 +105,7 @@ bool QWIICMUX::setPortState(uint8_t portBits)
 uint8_t QWIICMUX::getPortState()
 {
   //Read the current mux settings
-  _i2cPort->beginTransmission(_deviceAddress);
+  //_i2cPort->beginTransmission(_deviceAddress); <- Don't do this!
   _i2cPort->requestFrom(_deviceAddress, 1);
   return (_i2cPort->read());
 }
