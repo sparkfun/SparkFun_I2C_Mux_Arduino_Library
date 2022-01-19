@@ -70,13 +70,14 @@ bool QWIICMUX::setPort(uint8_t portNumber)
 
 //Returns the first port number bit that is set
 //Returns 255 if no port is enabled
+//Return 254 if there is an I2C error
 uint8_t QWIICMUX::getPort()
 {
   //Read the current mux settings
   //_i2cPort->beginTransmission(_deviceAddress); <- Don't do this!
   _i2cPort->requestFrom(_deviceAddress, uint8_t(1));
   if (!_i2cPort->available())
-    return (255); //Error
+    return (254); //Error
   uint8_t portBits = _i2cPort->read();
 
   //Search for the first set bit, then return its location
